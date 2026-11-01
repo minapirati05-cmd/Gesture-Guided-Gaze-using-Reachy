@@ -1,0 +1,6 @@
+.venv 
+__pycache__/ 
+*.pt 
+models/ 
+*.mp4 
+daemon_help.txt 
