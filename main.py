@@ -9,7 +9,7 @@ from objects import detect_objects
 
 from selector import box_center, select_target 
 
-from robot import pixel_head_angles
+from robot import pixel_head_angles, speak
 
 
 from reachy_mini import ReachyMini                 
@@ -26,10 +26,12 @@ landmarker = vision.HandLandmarker.create_from_options(options)
 
 stable_frames = 8 
 head_move_duration = 0.5 
+speech_delay = 1.0
 
 
 with ReachyMini(media_backend="no_media") as mini:
     mini.goto_target(head=create_head_pose(), duration=1.0)
+    
 
     cap = cv2.VideoCapture(0)
 
@@ -83,9 +85,6 @@ with ReachyMini(media_backend="no_media") as mini:
                     if status == "target":
                         current_target = target
                         # Highlight the chosen object: thick green box + its name
-                        cx, cy = box_center(target["bbox"])
-                        yaw, pitch = pixel_head_angles(cx, cy, w, h)
-                        print(f"yaw={yaw:.1f} pitch={pitch:.1f}")
                         x1, y1, x2, y2 = target["bbox"]
                         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 4)
                         cv2.putText(frame, f"Target: {target['label']}", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -110,10 +109,14 @@ with ReachyMini(media_backend="no_media") as mini:
                     stable_count = 1
 
                 if stable_count >= stable_frames and label != announced_label:
+                    cx, cy = box_center(current_target["bbox"])
+                    yaw, pitch = pixel_head_angles(cx, cy, w, h)
+                    print(f"yaw={yaw:.1f} pitch={pitch:.1f}")
                     mini.goto_target(
                         head=create_head_pose(yaw=yaw, pitch=pitch, degrees=True),
                         duration= head_move_duration,
                     )
+                    speak(label, delay=speech_delay)
                     announced_label = label
             else:
                 # ambiguous, no target, or not pointing: the streak is broken
