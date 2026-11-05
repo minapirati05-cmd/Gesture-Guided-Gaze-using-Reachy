@@ -1,14 +1,14 @@
 # Point, Look, and Name — Reachy Mini
 
-The user points at an object in front of a webcam; Reachy Mini (full MuJoCo simulation) turns its head towards that object, displays its name and says it out loud. When the pointing direction is unclear, the system says so instead of guessing.
+The user points at an object in front of a webcam. Reachy Mini (full MuJoCo simulation) turns its head towards that object, displays its name and says it out loud. When the pointing direction is unclear, the system says so instead of guessing.
 
 ## How it works
 
 1. **Pointing gesture** — MediaPipe Hand Landmarker finds 21 hand landmarks. A hand counts as pointing when the index finger is extended and the middle, ring and little fingers are curled (fingertip vs. middle-joint distance to the wrist).
 2. **Object detection** — Ultralytics YOLO11n (COCO classes) detects objects; low-confidence boxes and the `person` class are ignored.
-3. **Target selection (rule-based)** — the pointing ray runs from the index knuckle through the fingertip. For each object, the angle between this ray and the line from the fingertip to the object's box centre is computed. The smallest angle wins if it is within a maximum angle and clearly better than the runner-up; otherwise the result is *no target* or *ambiguous*.
+3. **Target selection (rule-based)** — the pointing ray runs from the index knuckle through the fingertip. For each object, the angle between this ray and the line from the fingertip to the object's box centre is computed. The smallest angle wins if it is within a maximum angle and clearly better than the runner-up. Otherwise the result is *no target* or *ambiguous*.
 4. **Stability** — the robot only acts once the same target has been selected for several consecutive frames and differs from the last one it named.
-5. **Robot** — the target's position in the image is mapped linearly to head yaw/pitch; Reachy turns its head, then says the object's name.
+5. **Robot** — the target's position in the image is mapped linearly to head yaw/pitch. Reachy turns its head, then says the object's name.
 
 ## Requirements
 
@@ -53,11 +53,11 @@ Wait until the MuJoCo window with the robot is open.
 python main.py
 ```
 
-Place at least two everyday objects (e.g. cup, bottle, phone, book) in view of the webcam and point at one of them. Press **q** in the camera window to quit; the head returns to centre.
+Place at least two everyday objects (e.g. cup, bottle, phone, book) in view of the webcam and point at one of them. Press **q** in the camera window to quit. The head will return to the centre.
 
 ### Why not the Reachy Mini Control app?
 
-Control's *Simulation* button starts the mockup simulator (no MuJoCo physics), and its media pipeline takes over the laptop webcam. Starting the daemon with `--sim --no-media` gives the full MuJoCo simulation while leaving the webcam free for OpenCV; the script connects with `ReachyMini(media_backend="no_media")`. Control can still be opened afterwards and connected to this daemon if wanted.
+Control's *Simulation* button starts the mockup simulator (no MuJoCo physics), and its media pipeline takes over the laptop webcam. Starting the daemon with `--sim --no-media` gives the full MuJoCo simulation while leaving the webcam free for OpenCV. The script then connects with `ReachyMini(media_backend="no_media")`. Control can still be opened afterwards and connected to this daemon if wanted; however, it would not have access to the webcam. 
 
 ## Camera preview
 
@@ -88,12 +88,13 @@ Thresholds (confidence, maximum angle, minimum angle gap, stability frames, head
 
 ## Known limitations
 
-- Pointing straight at the camera is not detected: the finger is foreshortened in the 2D image, so there is no usable direction.
-- Only COCO object classes are recognised.
-- The MuJoCo simulation runs slower than real time on a laptop CPU; the speech delay compensates so the name is spoken after the head arrives.
+- Pointing straight at the camera is not detected. The finger is foreshortened in the 2D image, so there is no usable direction.
+- Only COCO object classes are recognised, and may not always be accurate. 
+- The MuJoCo simulation runs slower than real time on a laptop CPU. The speech delay compensates so the name is spoken after the head arrives.
 - The video briefly pauses during each head movement (`goto_target` blocks), which happens only once per new target.
+- Objects lined up behind each other along the pointing direction get similar angles and are usually reported as ambiguous. The selection does not use distance to prefer the nearer object.
 
-## Troubleshooting
+## Troubleshooting (Problems I encountered and how I resolved them) 
 
 - **Webcam error / "camera busy"**: close the Control app, Teams, Zoom or any other program using the camera; make sure the daemon was started with `--no-media`.
 - **MuJoCo window closes on start**: start the daemon with `--no-media`.
