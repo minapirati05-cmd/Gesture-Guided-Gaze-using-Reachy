@@ -1,5 +1,4 @@
-
-import math 
+ 
 
 """Hand-gesture helpers built on MediaPipe hand landmarks.
 
