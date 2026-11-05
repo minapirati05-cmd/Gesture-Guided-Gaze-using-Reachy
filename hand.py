@@ -59,7 +59,7 @@ def pointing_ray(hand, w, h):
     """
     Returns a 2D ray (origin, direction) in pixel coordinates, representing
     the pointing direction of the hand. The origin is the index finger tip,
-    and the direction is from the PIP joint to the tip.
+    and the direction is from the PIP joint to the knuckle.
     """
     origin = hand[INDEX_TIP]
     mcp = hand[INDEX_MCP]
