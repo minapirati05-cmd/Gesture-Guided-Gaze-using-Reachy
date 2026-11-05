@@ -5,7 +5,7 @@ The user points at an object in front of a webcam. Reachy Mini (full MuJoCo simu
 ## How it works
 
 1. **Pointing gesture** — MediaPipe Hand Landmarker finds 21 hand landmarks. A hand counts as pointing when the index finger is extended and the middle, ring and little fingers are curled (fingertip vs. middle-joint distance to the wrist).
-2. **Object detection** — Ultralytics YOLO11n (COCO classes) detects objects; low-confidence boxes and the `person` class are ignored.
+2. **Object detection** — Ultralytics YOLOv8n (COCO classes) detects objects; low-confidence boxes and the `person` class are ignored.
 3. **Target selection (rule-based)** — the pointing ray runs from the index knuckle through the fingertip. For each object, the angle between this ray and the line from the fingertip to the object's box centre is computed. The smallest angle wins if it is within a maximum angle and clearly better than the runner-up. Otherwise the result is *no target* or *ambiguous*.
 4. **Stability** — the robot only acts once the same target has been selected for several consecutive frames and differs from the last one it named.
 5. **Robot** — the target's position in the image is mapped linearly to head yaw/pitch. Reachy turns its head, then says the object's name.
@@ -35,7 +35,7 @@ mkdir models
 curl.exe -L -o models/hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
 ```
 
-The YOLO weights (`yolo11n.pt`) download automatically on the first run.
+The YOLO weights (`yolov8n.pt`) download automatically on the first run.
 
 ## Running
 
